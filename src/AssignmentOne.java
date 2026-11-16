@@ -30,6 +30,10 @@ public class AssignmentOne {
                         new String[]{"Mon", "Thu"}, "APD")
         ));
 
+        // Part 6: run the automatic scripted demonstration first (no input needed).
+        runScriptedDemo(manager, roster);
+        System.out.println("\nNow entering the interactive menu.");
+
         while (true) {
             System.out.println("\n===== CLINIC APPOINTMENT SYSTEM =====");
             System.out.println("1. List all health professionals");
@@ -82,6 +86,71 @@ public class AssignmentOne {
         for (Appointment a : list) {
             System.out.println(a);
         }
+    }
+
+    /**
+     * Part 6 scripted demonstration. Runs automatically without user input and
+     * exercises both normal cases and error cases end-to-end.
+     */
+    private static void runScriptedDemo(AppointmentManager manager,
+                                        List<HealthProfessional> roster) {
+        System.out.println("\n############################################################");
+        System.out.println("# SCRIPTED DEMONSTRATION (Part 6) - runs automatically     #");
+        System.out.println("############################################################");
+
+        // 1. Show the full professional roster.
+        printRoster(roster);
+
+        // 2. Create several patients.
+        Patient p1 = new Patient("John Doe", "0412345678");
+        Patient p2 = new Patient("Mary Lee", "0423456789");
+        Patient p3 = new Patient("Tom Chen", "0434567890");
+        Patient p4 = new Patient("Anna Smith", "0445678901");
+
+        // 3. Book appointments across different professional types.
+        System.out.println("\n--- Booking appointments ---");
+        HealthProfessional gp1001 = findById(roster, "1001");
+        HealthProfessional spec2001 = findById(roster, "2001");
+        HealthProfessional nurse3001 = findById(roster, "3001");
+        HealthProfessional diet4001 = findById(roster, "4001");
+
+        System.out.println(manager.addAppointment(p1, gp1001, TimeSlot.SLOT_0930));
+        System.out.println(manager.addAppointment(p2, spec2001, TimeSlot.SLOT_1000));
+        System.out.println(manager.addAppointment(p3, nurse3001, TimeSlot.SLOT_0830));
+        System.out.println(manager.addAppointment(p1, gp1001, TimeSlot.SLOT_1100));
+        System.out.println(manager.addAppointment(p4, diet4001, TimeSlot.SLOT_0900));
+
+        // 4. Display all appointments, sorted by time earliest-first.
+        printAppointments(manager.getAllSorted());
+
+        // 5. Error case: attempt to double-book the same professional at the same slot.
+        System.out.println("\n--- Error case: double booking ---");
+        System.out.println(manager.addAppointment(p2, gp1001, TimeSlot.SLOT_0930));
+
+        // 6. Filter by professional ID.
+        System.out.println("\n--- Filter by professional ID 1001 ---");
+        printAppointments(manager.filterByProfessionalId("1001"));
+
+        // 7. Filter by patient mobile.
+        System.out.println("\n--- Filter by patient mobile 0412345678 ---");
+        printAppointments(manager.filterByPhone("0412345678"));
+
+        // 8. Cancel one appointment, then display again to show the update.
+        System.out.println("\n--- Cancel nurse appointment (ID 3001 at 08:30) ---");
+        System.out.println(manager.cancelByProfessionalAndSlot("3001", TimeSlot.SLOT_0830));
+        printAppointments(manager.getAllSorted());
+
+        // 9. Error case: cancel an appointment that no longer exists.
+        System.out.println("\n--- Error case: cancel nonexistent appointment ---");
+        System.out.println(manager.cancelByProfessionalAndSlot("3001", TimeSlot.SLOT_0830));
+
+        // 10. Error case: cancel by a phone number with no appointments.
+        System.out.println("\n--- Error case: cancel by unknown phone ---");
+        System.out.println(manager.cancelByPhone("0499999999"));
+
+        System.out.println("\n############################################################");
+        System.out.println("# END OF SCRIPTED DEMONSTRATION                            #");
+        System.out.println("############################################################");
     }
 
     private static HealthProfessional findById(List<HealthProfessional> roster, String id) {
